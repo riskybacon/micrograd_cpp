@@ -38,5 +38,6 @@ main.dSYM
 main
 .clang-format
 .DS_Store
-graph.dot
-graph.png
+*.dot
+*.png
+TODO.md

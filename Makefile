@@ -1,18 +1,19 @@
 CPP = g++
-CFLAGS = -Wall -g --std=c++20
+EXTRA_CXXFLAGS =
+CXXFLAGS = -Wall -g --std=c++20 -I. $(EXTRA_CXXFLAGS)
 
-TARGET = main
+TARGETS = main test
 
-SRCS = main.cpp
+SRCS = main.cpp test.cpp
 OBJS = $(SRCS:.c=.o)
 
-all: $(TARGET)
+all: $(TARGETS)
 
 $(TARGET): $(OBJS)
-	$(CPP) $(CFLAGS) -o $@ $^
+	$(CPP) $(CXXFLAGS) -o $@ $^
 
 %.o: %.cpp
-	$(CPP) $(CFLAGS) -c $< -o $@
+	$(CPP) $(CXXFLAGS) -c $< -o $@
 
 clean:
-	rm -f $(TARGET) $(OBJS)
+	rm -f $(TARGETS) *.dot *.png
