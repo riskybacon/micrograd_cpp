@@ -30,3 +30,13 @@
 *.exe
 *.out
 *.app
+
+# Misc
+build/
+.vscode/
+main.dSYM
+main
+.clang-format
+.DS_Store
+graph.dot
+graph.png
