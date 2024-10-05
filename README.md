@@ -2,15 +2,15 @@
 This is a port of Andrej Karpathy's [micrograd](https://github.com/karpathy/micrograd)
 from Python to C++.
 
-The reason I wrote this is because I'd like to increase my knowledge of C++ and
-to help me understand more about frameworks like Pytorch.
+I wrote this to increase my knowledge of C++ and to understand more about
+frameworks like Pytorch.
 
 # Goals
-* Learn something about C++ and ML frameworks
-* Keep structure as similar to original micrograd as possible
+* Learn more about C++ and ML frameworks
+* Keep the structure as close to original micrograd
+* Avoid pointers as much as possible
 * No external dependencies required
 * Train the same model as micrograd
-* Avoid pointers when possible
 
 # Build
 
