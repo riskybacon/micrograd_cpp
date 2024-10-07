@@ -38,7 +38,7 @@ make EXTRA_CXXFLAGS="-DNO_GRAPHVIZ"
 * Making members in `Value` reference the context
 * DFS topo sort didn't work right
 
-See DESIGN.md for how these challenges were handled.
+See [DESIGN](DESIGN.md) for how these challenges were handled.
 
 # Similar projects
 
