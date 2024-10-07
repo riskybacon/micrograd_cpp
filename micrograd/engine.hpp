@@ -75,11 +75,6 @@ struct Value
     std::string &op;
     std::function<void()> &backward_;
 
-    const size_t id() const
-    {
-        return ctx_->id();
-    }
-
     Value(const value_type &data)
         : ctx_(std::make_shared<Context>(data)), data(ctx_->data), grad(ctx_->grad), label(ctx_->label), op(ctx_->op), backward_(ctx_->backward)
     {
@@ -110,17 +105,9 @@ struct Value
     {
     }
 
-    std::string repr() const
-    {
-        return ctx_->repr();
-    }
-
     Value operator+(Value &other)
     {
-        auto &a = *this;
-        auto &b = other;
-
-        auto out = Value(a.data + b.data, {a, b}, "+");
+        auto out = Value(data + other.data, {other, *this}, "+");
         backward_ = [&out, &other, this]()
         {
             grad += out.grad;
@@ -129,54 +116,15 @@ struct Value
         return out;
     }
 
-    Value operator+(value_type other)
-    {
-        auto o = Value(other);
-        return *this + o;
-    }
-
-    Value operator-()
-    {
-        auto neg = Value(-1.0f);
-        return *this * neg;
-    }
-
-    Value operator-(Value &other)
-    {
-        auto neg = -other;
-        return *this + neg;
-    }
-
     Value operator*(Value &other)
     {
-        auto &a = *this;
-        auto &b = other;
-
-        auto out = Value(a.data * b.data, {a, b}, "*");
-        backward_ = [&out, &a, &b]()
+        auto out = Value(data * other.data, {other, *this}, "*");
+        backward_ = [&out, &other, this]()
         {
-            a.grad += b.data * out.grad;
-            b.grad += a.data * out.grad;
+            grad += other.data * out.grad;
+            other.grad += data * out.grad;
         };
         return out;
-    }
-
-    Value operator*(value_type other)
-    {
-        auto o = Value(other);
-        return *this * o;
-    }
-
-    Value operator/(Value &other)
-    {
-        auto b = other.pow(-1);
-        return *this * b;
-    }
-
-    Value operator/(const value_type &other)
-    {
-        auto b = Value(other).pow(-1);
-        return *this * b;
     }
 
     Value tanh()
@@ -214,6 +162,42 @@ struct Value
         return out;
     }
 
+    Value operator+(value_type other)
+    {
+        auto o = Value(other);
+        return *this + o;
+    }
+
+    Value operator-()
+    {
+        auto neg = Value(-1.0f);
+        return *this * neg;
+    }
+
+    Value operator-(Value &other)
+    {
+        auto neg = -other;
+        return *this + neg;
+    }
+
+    Value operator*(value_type other)
+    {
+        auto o = Value(other);
+        return *this * o;
+    }
+
+    Value operator/(Value &other)
+    {
+        auto b = other.pow(-1);
+        return *this * b;
+    }
+
+    Value operator/(const value_type &other)
+    {
+        auto b = Value(other).pow(-1);
+        return *this * b;
+    }
+
     Value pow(value_type other)
     {
         Value o(other);
@@ -231,6 +215,8 @@ struct Value
         grad = 1;
         while (q.size() > 0)
         {
+            // TODO: do you need to traverse layer by layer like this?
+            // I think this can be simplified
             const auto size = q.size();
             for (size_t i = 0; i < size; i++)
             {
@@ -248,6 +234,16 @@ struct Value
                 }
             }
         }
+    }
+
+    const size_t id() const
+    {
+        return ctx_->id();
+    }
+
+    std::string repr() const
+    {
+        return ctx_->repr();
     }
 };
 
