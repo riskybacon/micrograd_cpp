@@ -2,7 +2,7 @@
 This is a port of Andrej Karpathy's [micrograd](https://github.com/karpathy/micrograd)
 from Python to C++.
 
-I wrote this to increase my knowledge of C++ and to understand more about
+I did this to increase my knowledge of C++ and to understand more about
 frameworks like Pytorch.
 
 # Goals
@@ -87,7 +87,6 @@ def make_model():
 def main:
     model = make_model()
     model.backward()
-}
 ```
 
 Because of Python's pass-by-reference + reference counting model, the
