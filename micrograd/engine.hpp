@@ -13,6 +13,7 @@
 
 struct Value;
 
+// Helpers for storing Values in an unordered_set
 template<typename T>
 struct IdHasher
 {
@@ -42,10 +43,7 @@ struct Context
     value_type grad = 0;
     std::string label;
     std::string op;
-    std::function<void()> backward = []()
-    {
-        // std::cout << "nop backward for a=" << repr() << std::endl;
-    };
+    std::function<void()> backward = []() {};
 
     Context(value_type data) : data(data) {}
     Context(value_type data, const std::string &label) : data(data), label(label) {}
@@ -79,69 +77,37 @@ struct Value
 
     const size_t id() const
     {
-        // Two Value instances that reference the same context will have the same id
         return ctx_->id();
     }
 
     Value(const value_type &data)
         : ctx_(std::make_shared<Context>(data)), data(ctx_->data), grad(ctx_->grad), label(ctx_->label), op(ctx_->op), backward_(ctx_->backward)
     {
-        // ctx_->data = data;
-        // std::cout << "Created " << id() << std::endl;
     }
 
     Value(const value_type &data, const std::string &label)
         : ctx_(std::make_shared<Context>(data, label)), data(ctx_->data), grad(ctx_->grad), label(ctx_->label), op(ctx_->op), backward_(ctx_->backward)
     {
-        // ctx_->data = data;
-        // ctx_->label = label;
-        // std::cout << "Created " << id() << ", label=" << ctx_->label << std::endl;
     }
 
     Value(const value_type &data, std::vector<Value> &prev)
         : ctx_(std::make_shared<Context>(data)), prev_(prev), data(ctx_->data), grad(ctx_->grad), label(ctx_->label), op(ctx_->op), backward_(ctx_->backward)
     {
-        // ctx_->data = data;
-        // std::cout << "Created " << id() << ", prev=";
-        // for (const auto &child : prev_) {
-        //     std::cout << "(" << child.id() << ", label=" << child.label() << ") ";
-        // }
-        // std::cout << std::endl;
     }
 
     Value(const value_type &data, std::vector<Value> &prev, const std::string &op)
         : ctx_(std::make_shared<Context>(data, "", op)), prev_(prev), data(ctx_->data), grad(ctx_->grad), label(ctx_->label), op(ctx_->op), backward_(ctx_->backward)
     {
-        // ctx_->data = data;
-        // ctx_->op = op;
-        // std::cout << "Created " << id() << ", op=" << op << ", prev=";
-        // for (const auto &child : prev_) {
-        //     std::cout << "(" << child.id() << ", label=" << child.label() << ") ";
-        // }
-        // std::cout << std::endl;
     }
 
     Value(const value_type &data, std::initializer_list<Value> &&prev)
         : ctx_(std::make_shared<Context>(data)), prev_(prev), data(ctx_->data), grad(ctx_->grad), label(ctx_->label), op(ctx_->op), backward_(ctx_->backward)
     {
-        // ctx_->data = data;
-        // std::cout << "Created " << id() << ", prev=";
-        // for (const auto &child : prev_) {
-        //     std::cout << "(" << child.id() << ", label=" << child.label() << ") ";
-        // }
-        // std::cout << std::endl;
     }
 
     Value(const value_type &data, std::initializer_list<Value> &&prev, const std::string &op)
         : ctx_(std::make_shared<Context>(data, "", op)), prev_(prev), data(ctx_->data), grad(ctx_->grad), label(ctx_->label), op(ctx_->op), backward_(ctx_->backward)
     {
-        // ctx_->data = data;
-        // ctx_->op = op;
-        // std::cout << "Created " << id() << ", op=" << op << ", prev=";
-        // for (const auto &child : prev_) {
-        //     std::cout << "(" << child.id() << ", label=" << child.label() << ") ";
-        // }
-        // std::cout << std::endl;
     }
 
     std::string repr() const
@@ -155,12 +121,10 @@ struct Value
         auto &b = other;
 
         auto out = Value(a.data + b.data, {a, b}, "+");
-        // std::cout << "forward for a=" << a.repr() << " + b=" << b.repr() << ", out=" << out.repr() << std::endl;
         backward_ = [&out, &other, this]()
         {
             grad += out.grad;
             other.grad += out.grad;
-            // std::cout << "+: backward for a=" << a.repr() << ", b=" << b.repr() << ", out=" << out.repr() << std::endl;
         };
         return out;
     }
@@ -189,12 +153,10 @@ struct Value
         auto &b = other;
 
         auto out = Value(a.data * b.data, {a, b}, "*");
-        // std::cout << "forward for a=" << a.repr() << " * b=" << b.repr() << ", out=" << out.repr() << std::endl;
         backward_ = [&out, &a, &b]()
         {
             a.grad += b.data * out.grad;
             b.grad += a.data * out.grad;
-            // std::cout << "*: backward for a=" << a.repr() << ", b=" << b.repr() << ", out=" << out.repr() << std::endl;
         };
         return out;
     }
@@ -222,12 +184,10 @@ struct Value
         value_type e2x = std::exp(2 * data);
         value_type th = (e2x - 1) / (e2x + 1);
         Value out(th, {*this}, "tanh");
-        // std::cout << "forward for a=" << repr() << " tanh, out=" << out.repr() << ", out.id()=" << out.id() << std::endl;
 
         backward_ = [&out, this]()
         {
             grad += (1 - out.data * out.data) * out.grad;
-            // std::cout << "tanh: backward for a=" << repr() << ", out=" << out.repr() << ", out.id()=" << out.id() << std::endl;
         };
         return out;
     }
@@ -314,4 +274,3 @@ std::ostream &operator<<(std::ostream &out, const Value &v)
     out << v.repr();
     return out;
 };
-

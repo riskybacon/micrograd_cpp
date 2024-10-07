@@ -9,6 +9,7 @@
 
 #include <micrograd/engine.hpp>
 
+// Helpers for storing edges in a set
 struct ValuePairHasher
 {
     auto operator()(const std::pair<Value, Value> &v) const
@@ -49,11 +50,9 @@ auto trace(Value &root)
     {
         if (nodes.find(node) == nodes.end())
         {
-            // std::cout << "node.id()=" << node.id() << ", label=" << node.label << std::endl;
             nodes.insert(node);
             for (auto &child : node.prev_)
             {
-                // std::cout << "child.id()=" << child.id() << ", node.id()=" << node.id() << std::endl;
                 edges.insert({child, node});
                 build(child);
             }
