@@ -2,7 +2,6 @@
 #include <cmath>
 #include <functional>
 #include <queue>
-#include <ranges>
 #include <set>
 #include <string>
 #include <sstream>
