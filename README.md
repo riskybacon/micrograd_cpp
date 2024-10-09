@@ -42,8 +42,8 @@ I faced 4 design challenges:
 
 ## Pointerless API
 
-I wanted to create an API that was as close to the original micrograd API as
-possible, but in C++:
+I wanted the API to be as close to the original micrograd API as possible, but
+in C++:
 
 ```c++
 auto make_model() {
