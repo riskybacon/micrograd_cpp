@@ -9,32 +9,15 @@
 
 #include <micrograd/engine.hpp>
 
-// Helpers for storing edges in a set
-struct ValuePairHasher
-{
-    auto operator()(const std::pair<Value, Value> &v) const
-    {
-        return std::get<0>(v).id() ^ std::get<1>(v).id();
-    }
-};
-
-struct ValuePairEqual
-{
-    auto operator()(const std::pair<Value, Value> &a, const std::pair<Value, Value> &b) const
-    {
-        return std::get<0>(a).id() == std::get<0>(a).id() && std::get<1>(a).id() == std::get<1>(b).id();
-    }
-};
-
 std::string value_to_graphviz(const Value &val)
 {
     std::stringstream node_label;
-    node_label << "{" << val.label << " | data " << std::fixed << std::setprecision(4) << val.data << " | grad " << val.grad << "}";
+    node_label << "{" << val.label() << " | data " << std::fixed << std::setprecision(4) << val.data() << " | grad " << val.grad() << "}";
     std::stringstream ss;
     ss << "\"" << val.id() << "\" [label=\"" << node_label.str() << "\", shape=record];\n";
 
-    if (!val.op.empty()) {
-        ss << "\"" << val.id() << "_op\" [label=\"" << val.op << "\"];\n";
+    if (!val.op().empty()) {
+        ss << "\"" << val.id() << "_op\" [label=\"" << val.op() << "\"];\n";
         ss << "\"" << val.id() << "_op\" -> \"" << val.id() << "\";\n";
     }
 
@@ -44,7 +27,7 @@ std::string value_to_graphviz(const Value &val)
 auto trace(Value &root)
 {
     std::unordered_set<Value, IdHasher<Value>, IdEqual<Value>> nodes;
-    std::unordered_set<std::pair<Value, Value>, ValuePairHasher, ValuePairEqual> edges;
+    std::vector<std::pair<Value, Value>> edges;
 
     std::function<void(Value&)> build = [&](Value &node)
     {
@@ -53,7 +36,7 @@ auto trace(Value &root)
             nodes.insert(node);
             for (auto &child : node.prev_)
             {
-                edges.insert({child, node});
+                edges.push_back({child, node});
                 build(child);
             }
         }
