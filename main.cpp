@@ -7,12 +7,12 @@ void test1(void) {
     auto b = Value(-3.0f, "b");
     auto c = Value(10.0f, "c");
     auto e = a + b;
-    e.label = "e";
+    e.label() = "e";
     auto d = e + c;
-    d.label = "d";
+    d.label() = "d";
     auto f = Value(-2.0f, "f");
     auto L = d * f;
-    L.label = "L";
+    L.label() = "L";
 
     L.backward();
 
