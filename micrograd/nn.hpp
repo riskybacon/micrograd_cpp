@@ -175,12 +175,6 @@ struct MLP : Module
         return (*this)(xv);
     }
 
-    template <template <typename> class Container, typename T, typename = std::enable_if_t<std::is_floating_point_v<T> || std::is_integral_v<T>>>
-    auto operator()(const Container<T> &values)
-    {
-        return operator()(to_values(values));
-    }
-
     std::vector<Value> parameters()
     {
         std::vector<Value> out;

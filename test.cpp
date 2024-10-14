@@ -272,8 +272,8 @@ void test_dot()
 template <typename T>
 void test_to_values()
 {
-    auto x = {static_cast<T>(2.0), static_cast<T>(3.0), static_cast<T>(-1.0)};
-    auto xv = to_values({static_cast<T>(2.0), static_cast<T>(3.0), static_cast<T>(-1.0)});
+    std::vector<T> x = {static_cast<T>(2.0), static_cast<T>(3.0), static_cast<T>(-1.0)};
+    auto xv = to_values<T>({static_cast<T>(2.0), static_cast<T>(3.0), static_cast<T>(-1.0)});
     is_equal(x.size(), xv.size());
 
     size_t i = 0;
@@ -357,8 +357,7 @@ void test_layer()
 
 void test_mlp()
 {
-    auto xv = {2.0f, 3.0f, -1.0f};
-    auto x = to_values(xv);
+    std::vector<float> x = {2.0f, 3.0f, -1.0f};
     auto n = MLP(3, {4, 4, 1});
     auto o = n(x);
 }
