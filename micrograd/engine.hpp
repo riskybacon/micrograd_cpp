@@ -337,6 +337,17 @@ struct Value
     const std::string &op() const { return ctx_->op; }
 };
 
+template <template <typename> class Container, typename T, typename = std::enable_if_t<std::is_floating_point_v<T> || std::is_integral_v<T>>>
+std::vector<Value> to_values(const Container<T> &values)
+{
+    std::vector<Value> out;
+    out.reserve(values.size());
+    for (auto &v : values)
+    {
+        out.emplace_back(Value(static_cast<float>(v)));
+    }
+    return out;
+}
 
 Value dot(std::vector<Value> &a, std::vector<Value> &b)
 {

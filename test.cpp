@@ -3,6 +3,7 @@
 
 #include <micrograd/engine.hpp>
 #include <micrograd/graphviz.hpp>
+#include <micrograd/nn.hpp>
 
 void is_close_helper(float a, float b, const char *file, const int line)
 {
@@ -267,11 +268,23 @@ void test_dot()
     c.backward();
 
     is_close(c.data(), a[0].data() * b[0].data() * size);
+}
 
-#ifndef NO_GRAPHVIZ
-    draw_dot(c, "dot.dot", "LR");
-    generate_png_from_dot("dot.dot", "dot.png");
-#endif
+template <typename T>
+void test_to_values()
+{
+    auto x = {static_cast<T>(2.0), static_cast<T>(3.0), static_cast<T>(-1.0)};
+    auto xv = to_values(x);
+    is_equal(x.size(), xv.size());
+
+    size_t i = 0;
+    for (auto xi : x)
+    {
+        is_equal(static_cast<float>(xi), xv[i].data());
+        i++;
+    }
+
+    // TODO: test parameters() method
 }
 
 void test_expr()
@@ -307,6 +320,67 @@ void test_expr()
 #endif
 }
 
+void test_neuron()
+{
+    size_t nin = 10;
+    auto a = Neuron(nin);
+
+    std::vector<Value> x;
+    for (size_t i = 0; i < nin; i++)
+    {
+        x.push_back(Value(2.0));
+        x[i].label() = "x[" + std::to_string(i) + "]";
+        a.w[i].data() = 3.0;
+    }
+    a.b.data() = 1.0;
+
+    is_equal(a.w.size(), nin);
+
+    auto out = a(x);
+
+    auto expected = x.front().data() * a.w.front().data() * nin + a.b.data();
+    is_close(out.data(), std::tanh(expected));
+
+#ifndef NO_GRAPHVIZ
+    draw_dot(out, "neuron.dot", "LR");
+    generate_png_from_dot("neuron.dot", "neuron.png");
+#endif
+}
+
+void test_layer()
+{
+    // Not a real test, it just;
+    // 1. Makes sure that it compiles
+    // 2. Makes sure that it runs without aborting
+
+    size_t nin = 3;
+    size_t nout = 4;
+    auto layer = Layer(nin, nout);
+    std::vector<Value> x;
+
+    for (size_t i = 0; i < nin; i++)
+    {
+        x.push_back(Value(1.0, "x[" + std::to_string(i) + "]"));
+    }
+
+    auto y = layer(x);
+
+    is_equal(y.size(), nout);
+}
+
+void test_mlp()
+{
+    auto xv = {2.0f, 3.0f, -1.0f};
+    auto x = to_values(xv);
+    auto n = MLP(3, {4, 4, 1});
+    auto o = n(x);
+
+#ifndef NO_GRAPHVIZ
+    draw_dot(o[0], "mlp.dot", "LR");
+    generate_png_from_dot("mlp.dot", "mlp.png");
+#endif
+}
+
 int main()
 {
     test_instantiate();
@@ -319,7 +393,14 @@ int main()
     test_tanh();
     test_exp();
     test_pow();
+    test_to_values<float>();
+    test_to_values<double>();
+    test_to_values<int>();
+    test_to_values<size_t>();
     test_dot();
     test_expr();
+    test_neuron();
+    test_layer();
+    test_mlp();
     return 0;
 }

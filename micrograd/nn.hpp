@@ -137,7 +137,6 @@ struct Layer : Module
     }
 };
 
-#if 0
 struct MLP : Module
 {
     std::vector<Layer> layers;
@@ -155,12 +154,11 @@ struct MLP : Module
         {
             layers.push_back(Layer(sz[i], sz[i + 1]));
         }
-        std::cout << "yo" << std::endl;
     }
 
     virtual ~MLP() {}
 
-    auto operator()(std::vector<Value> &&x)
+    auto operator()(std::vector<Value> &x)
     {
         for (auto layer : layers)
         {
@@ -196,4 +194,3 @@ struct MLP : Module
         return ss.str();
     }
 };
-#endif
