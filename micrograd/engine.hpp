@@ -23,13 +23,6 @@ struct Context
         : data(data), op(op), prev(prev)
     {
     }
-
-    std::string repr() const
-    {
-        std::stringstream ss;
-        ss << "(" << label << "," << this << ", data=" << data << ", grad=" << grad << ")";
-        return ss.str();
-    }
 };
 
 auto operator+(std::shared_ptr<Context> &lhs, std::shared_ptr<Context> &rhs)
@@ -323,7 +316,9 @@ struct Value
 
     std::string repr() const
     {
-        return ctx_->repr();
+        std::stringstream ss;
+        ss << "Value(data=" << ctx_->data << ")";
+        return ss.str();
     }
 
     // Convenience methods to make updating context easy with similar api as original micrograd
@@ -337,8 +332,20 @@ struct Value
     const std::string &op() const { return ctx_->op; }
 };
 
-template <template <typename> class Container, typename T, typename = std::enable_if_t<std::is_floating_point_v<T> || std::is_integral_v<T>>>
-std::vector<Value> to_values(const Container<T> &values)
+// template <template <typename> class Container, typename T, typename = std::enable_if_t<std::is_floating_point_v<T> || std::is_integral_v<T>>>
+// std::vector<Value> to_values(const Container<T> &values)
+// {
+//     std::vector<Value> out;
+//     out.reserve(values.size());
+//     for (auto &v : values)
+//     {
+//         out.emplace_back(Value(static_cast<float>(v)));
+//     }
+//     return out;
+// }
+
+template <typename T, typename = std::enable_if_t<std::is_floating_point_v<T> || std::is_integral_v<T>>>
+std::vector<Value> to_values(const std::initializer_list<T> &values)
 {
     std::vector<Value> out;
     out.reserve(values.size());
@@ -351,6 +358,18 @@ std::vector<Value> to_values(const Container<T> &values)
 
 template <typename T, typename = std::enable_if_t<std::is_floating_point_v<T> || std::is_integral_v<T>>>
 std::vector<Value> to_values(const std::initializer_list<T> &&values)
+{
+    std::vector<Value> out;
+    out.reserve(values.size());
+    for (auto &v : values)
+    {
+        out.emplace_back(Value(static_cast<float>(v)));
+    }
+    return out;
+}
+
+template <typename T, typename = std::enable_if_t<std::is_floating_point_v<T> || std::is_integral_v<T>>>
+std::vector<Value> to_values(const std::vector<T> &values)
 {
     std::vector<Value> out;
     out.reserve(values.size());
@@ -379,3 +398,34 @@ std::ostream &operator<<(std::ostream &out, const Value &v)
     out << v.repr();
     return out;
 };
+
+std::ostream &operator<<(std::ostream &out, std::vector<Value> &values)
+{
+    out << "[";
+    for (size_t i = 0; i < values.size(); i++)
+    {
+        out << values[i].repr();
+        if (i < values.size() - 1)
+        {
+            out << ",";
+        }
+    }
+    out << "]";
+    return out;
+}
+
+std::ostream &operator<<(std::ostream &out, std::vector<std::vector<Value>> &values)
+{
+    bool print_space = false;
+    out << "[";
+    for (auto &v : values)
+    {
+        if (print_space) {
+            out << " ";
+        }
+        print_space = true;
+        out << v << "\n";
+    }
+    out << "]";
+    return out;
+}

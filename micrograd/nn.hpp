@@ -77,6 +77,7 @@ struct Neuron : Module
     std::vector<Value> parameters()
     {
         std::vector<Value> out;
+        out.reserve(w.size() + 1);
         for (auto &p : w)
         {
             out.push_back(p);
@@ -166,6 +167,12 @@ struct MLP : Module
         }
 
         return x;
+    }
+
+    auto operator()(std::vector<float> &x)
+    {
+        auto xv = to_values(x);
+        return (*this)(xv);
     }
 
     template <template <typename> class Container, typename T, typename = std::enable_if_t<std::is_floating_point_v<T> || std::is_integral_v<T>>>

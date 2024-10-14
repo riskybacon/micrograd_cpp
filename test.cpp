@@ -2,7 +2,6 @@
 #include <iomanip>
 
 #include <micrograd/engine.hpp>
-#include <micrograd/graphviz.hpp>
 #include <micrograd/nn.hpp>
 
 void is_close_helper(float a, float b, const char *file, const int line)
@@ -311,11 +310,6 @@ void test_expr()
     is_close(f.grad(), 4);
     is_close(L.data(), -8.0);
     is_close(L.grad(), 1);
-
-#ifndef NO_GRAPHVIZ
-    draw_dot(L, "expr.dot", "LR");
-    generate_png_from_dot("expr.dot", "expr.png");
-#endif
 }
 
 void test_neuron()
@@ -338,11 +332,6 @@ void test_neuron()
 
     auto expected = x.front().data() * a.w.front().data() * nin + a.b.data();
     is_close(out.data(), std::tanh(expected));
-
-#ifndef NO_GRAPHVIZ
-    draw_dot(out, "neuron.dot", "LR");
-    generate_png_from_dot("neuron.dot", "neuron.png");
-#endif
 }
 
 void test_layer()
@@ -372,11 +361,6 @@ void test_mlp()
     auto x = to_values(xv);
     auto n = MLP(3, {4, 4, 1});
     auto o = n(x);
-
-#ifndef NO_GRAPHVIZ
-    draw_dot(o[0], "mlp.dot", "LR");
-    generate_png_from_dot("mlp.dot", "mlp.png");
-#endif
 }
 
 int main()
