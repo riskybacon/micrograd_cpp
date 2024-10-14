@@ -332,6 +332,19 @@ struct Value
     const std::string &op() const { return ctx_->op; }
 };
 
+Value dot(std::vector<Value> &a, std::vector<Value> &b)
+{
+    assert(a.size() == b.size());
+    auto out = Value(0, "zero");
+
+    for (size_t i = 0; i < a.size(); i++)
+    {
+        out += a[i] * b[i];
+    }
+
+    return out;
+}
+
 template <typename T, typename = std::enable_if_t<std::is_floating_point_v<T> || std::is_integral_v<T>>>
 std::vector<Value> to_values(const std::vector<T> &values)
 {
@@ -344,17 +357,19 @@ std::vector<Value> to_values(const std::vector<T> &values)
     return out;
 }
 
-Value dot(std::vector<Value> &a, std::vector<Value> &b)
+template <typename T>
+std::string join(std::string sep, std::vector<T> &vec)
 {
-    assert(a.size() == b.size());
-    auto out = Value(0, "zero");
-
-    for (size_t i = 0; i < a.size(); i++)
+    std::stringstream ss;
+    for (size_t i = 0; i < vec.size(); i++)
     {
-        out += a[i] * b[i];
+        ss << vec[i].repr();
+        if (i < vec.size() - 1)
+        {
+            ss << sep;
+        }
     }
-
-    return out;
+    return ss.str();
 }
 
 std::ostream &operator<<(std::ostream &out, const Value &v)

@@ -5,21 +5,6 @@
 
 #include <micrograd/engine.hpp>
 
-template <typename T>
-std::string join(std::string sep, std::vector<T> &vec)
-{
-    std::stringstream ss;
-    for (size_t i = 0; i < vec.size(); i++)
-    {
-        ss << vec[i].repr();
-        if (i < vec.size() - 1)
-        {
-            ss << sep;
-        }
-    }
-    return ss.str();
-}
-
 struct Module
 {
     void zero_grad()
