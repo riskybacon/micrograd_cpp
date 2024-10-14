@@ -274,7 +274,7 @@ template <typename T>
 void test_to_values()
 {
     auto x = {static_cast<T>(2.0), static_cast<T>(3.0), static_cast<T>(-1.0)};
-    auto xv = to_values(x);
+    auto xv = to_values({static_cast<T>(2.0), static_cast<T>(3.0), static_cast<T>(-1.0)});
     is_equal(x.size(), xv.size());
 
     size_t i = 0;
@@ -283,8 +283,6 @@ void test_to_values()
         is_equal(static_cast<float>(xi), xv[i].data());
         i++;
     }
-
-    // TODO: test parameters() method
 }
 
 void test_expr()
